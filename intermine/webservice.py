@@ -255,6 +255,7 @@ class Service(object):
         if not root.endswith("/service"): root = root + "/service"
 
         self.root = root
+        self._Token = token
         self.prefetch_depth = prefetch_depth
         self.prefetch_id_only = prefetch_id_only
         # Initialize empty cached data.
@@ -267,8 +268,8 @@ class Service(object):
         self.__missing_method_name = None
         if token:
             if token=="random":
-                token = self.get_anonymous_token(url=root)
-            self.opener = InterMineURLOpener(token=token)
+                self._Token = self.get_anonymous_token(url=root)
+            self.opener = InterMineURLOpener(token=self._Token)
         elif username:
             if token:
                 raise ValueError("Both username and token credentials supplied")
@@ -306,6 +307,14 @@ class Service(object):
         token = requests.get(url=url)
         token = token.json()["token"]
         return token
+
+    def get_token(self):
+        """
+        Returns the token used by the session
+        =====================================
+        """
+        if self._Token:
+            return self._Token
 
     def list_manager(self):
         """
